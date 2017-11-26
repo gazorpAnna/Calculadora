@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class LlistaOperacions extends AppCompatActivity implements View.OnClickListener {
 
@@ -86,7 +87,6 @@ public class LlistaOperacions extends AppCompatActivity implements View.OnClickL
             }
         } else if (requestCode == 200){ // ve de TractamentOperacio
             if(resultCode == RESULT_OK){
-                //lista = getIntent().getExtras().getStringArrayList("listaViene");
                 String op = data.getExtras().getString("obj");
                 Intent intre = getIntent();
                 intre.putExtra("op",op);
@@ -95,9 +95,21 @@ public class LlistaOperacions extends AppCompatActivity implements View.OnClickL
             } else if (resultCode == RESULT_CANCELED){
                 String op = data.getExtras().getString("obj");
                 lista.remove(op);
+                lista = tornarAPosarNum();
                 arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,lista );
                 listView.setAdapter(arrayAdapter);
             }
         }
+    }
+
+    private ArrayList<String> tornarAPosarNum()
+    {
+        ArrayList<String> result = new ArrayList<>();
+        int index = 0;
+        for (String s:lista){
+            String[] sp = s.split(" ",3);
+            result.add(result.size()+1+": " + sp[2]);
+        }
+        return result;
     }
 }

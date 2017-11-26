@@ -28,14 +28,12 @@ public class PantallaPrincipal extends AppCompatActivity {
     TextView result;
     Integer resultatNum;
     ArrayList<String> histOperacions= new ArrayList<>();
-
-
+    //Boolean modificat = false;
+    Integer ind = -1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.pantalla_principal);
-
-
 
         // Carrego els operants del spinner:
         spinner = (Spinner) findViewById(R.id.spinner);
@@ -48,6 +46,7 @@ public class PantallaPrincipal extends AppCompatActivity {
         num2 = (EditText) findViewById(R.id.num2);
         result = (TextView) findViewById(R.id.resultat);
 
+        // botó que calcula el resultat
         igual = (Button) findViewById(R.id.igual);
         igual.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,19 +62,27 @@ public class PantallaPrincipal extends AppCompatActivity {
                 }else { // sino, faig els calculs:
                     if (spinner.getSelectedItem().toString().contains("+")) {
                         resultatNum = Integer.parseInt(num1.getText().toString()) + Integer.parseInt(num2.getText().toString());
-                        result.setText(resultatNum.toString());
                     } else if (spinner.getSelectedItem().toString().contains("-")) {
                         resultatNum = Integer.parseInt(num1.getText().toString()) - Integer.parseInt(num2.getText().toString());
-                        result.setText(resultatNum.toString());
                     } else if (spinner.getSelectedItem().toString().contains("x")) {
                         resultatNum = Integer.parseInt(num1.getText().toString()) * Integer.parseInt(num2.getText().toString());
-                        result.setText(resultatNum.toString());
                     } else if (spinner.getSelectedItem().toString().contains("/")) {
                         resultatNum = Integer.parseInt(num1.getText().toString()) / Integer.parseInt(num2.getText().toString());
-                        result.setText(resultatNum.toString());
                     }
-                    histOperacions.add(histOperacions.size()+1+": " + num1.getText().toString()+ " "+ spinner.getSelectedItem().toString()+" "
-                            + num2.getText().toString() +" "+"=" + " "+ result.getText().toString());
+                    // Mostro el resultat de l'operació:
+                    result.setText(resultatNum.toString());
+
+                    if(ind != -1){
+                        histOperacions.set(ind, ind+1+" : " + num1.getText().toString()+ " "+ spinner.getSelectedItem().toString()+" "
+                                + num2.getText().toString() +" "+"=" + " "+ result.getText().toString());
+                        Toast.makeText(getApplicationContext(),"El registre " + ind.toString() + " s'ha modificat",Toast.LENGTH_SHORT);
+                        ind = -1;
+                    }else{
+                        // Afegeixo la operacio passada a string al historial d'operacions
+                        histOperacions.add(histOperacions.size()+1+" : " + num1.getText().toString()+ " "+ spinner.getSelectedItem().toString()+" "
+                                + num2.getText().toString() +" "+"=" + " "+ result.getText().toString());
+                    }
+
                 }
 
 
@@ -92,11 +99,11 @@ public class PantallaPrincipal extends AppCompatActivity {
             }
         });
 
-
+        // Botó per mostrar l'historial
         historial = (Button) findViewById(R.id.historial);
         historial.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View view) { //Li passo l'historial
                 Intent inb1 = new Intent(PantallaPrincipal.this, LlistaOperacions.class);
                 inb1.putStringArrayListExtra("listaOp",histOperacions);
                 startActivityForResult(inb1, 1);
@@ -105,6 +112,7 @@ public class PantallaPrincipal extends AppCompatActivity {
 
 
     }
+    // Funció que em retorna l'index de l'spinner donat el valor que té
     private int getIndex(Spinner sp, String str)
     {
         int index = 0;
@@ -114,6 +122,8 @@ public class PantallaPrincipal extends AppCompatActivity {
         }
         return index;
     }
+
+    // Funció que em gestiona les operacions que es duen a terme quan es retorna d'alguna altra activitat
     protected void onActivityResult (int requestCode, int resultCode, Intent data)
     {
         super.onActivityResult(requestCode, resultCode, data);
@@ -122,12 +132,13 @@ public class PantallaPrincipal extends AppCompatActivity {
                 histOperacions = data.getExtras().getStringArrayList("lista");
             } else if(resultCode == RESULT_FIRST_USER){
                 String op = data.getExtras().getString("op");//getIntent().getExtras().getString("op");
-                histOperacions.remove(op);
+                //histOperacions.remove(op);
                 String[] sp = op.split(" ");
-                num1.setText(sp[1]);
+                num1.setText(sp[2]);
                 spinner.setSelection(getIndex(spinner, sp[2]));
-                num2.setText(sp[3]);
-
+                num2.setText(sp[4]);
+                //modificat = true;
+                ind = Integer.parseInt(sp[0]) - 1;
             }
         }
     }
